@@ -24,6 +24,10 @@ class PlantTypeDataService {
   deleteAll() {
     return http.delete(`/farm/plant_type`);
   }
+
+  findByName(data) {
+    return http.post(`/farm/plant_type/name`, data);
+  }
 }
 
 export default new PlantTypeDataService();

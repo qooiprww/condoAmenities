@@ -11,7 +11,6 @@ import EcoIcon from "@material-ui/icons/Eco";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import InboxIcon from "@material-ui/icons/MoveToInbox";
 import GridOnIcon from "@material-ui/icons/GridOn";
-import ComputerIcon from "@material-ui/icons/Computer";
 import QueryBuilderIcon from "@material-ui/icons/QueryBuilder";
 import ControlCameraIcon from "@material-ui/icons/ControlCamera";
 import TimelineIcon from "@material-ui/icons/Timeline";
@@ -20,7 +19,7 @@ import RefreshIcon from "@material-ui/icons/Refresh";
 import DoneIcon from "@material-ui/icons/Done";
 import { ThemeProvider } from "@material-ui/styles";
 import TaskDataService from "./services/task.service";
-import AmbientDataDataService from "./services/ambient_data.service";
+
 import {
   AppBar,
   Toolbar,
@@ -40,12 +39,15 @@ import {
   Step,
   StepLabel,
   StepConnector,
-  Paper,
 } from "@material-ui/core";
 
 //import SeedContainer from "./components/seed_container.component";
 //import SeedContainersList from "./components/seed_containers-list.component";
 import SeedContainer from "./components/seed_container.component";
+import CondoDashboard from "./components/condo_dashboard.component";
+import PlantDashboard from "./components/plant_dashboard.component";
+import GridPlanner from "./components/grid_planner.component";
+import PlantType from "./components/plant_type.component";
 
 function getSteps() {
   return ["Queued", "Executing", "Finished"];
@@ -125,31 +127,28 @@ export default function MiniDrawer() {
   const [activeStep, setActiveStep] = React.useState(0);
   const [currentTask, setCurrentTask] = React.useState("Empty");
   const [nextTask, setNextTask] = React.useState("Empty");
-  const [ambientHmidity, setAmbientHmidity] = React.useState(0.0);
-  const [ambientLightIntensity, setAmbientLightIntensity] = React.useState(0.0);
-  const [ambientTemperature, setAmbientTemperature] = React.useState(0.0);
-  const [dataDateTime, setDataDateTime] = React.useState(new Date());
+
   const steps = getSteps();
 
   const getActiveStep = () => {
     TaskDataService.getCurrentTask()
       .then((response) => {
         if (response.data !== "empty") {
-          setCurrentTask(TASK_CHOICES[response.data[0].task_type]);
-
+          setCurrentTask(response.data[0]);
           if (response.data[0].task_status === settings.TASK_STATUS_QUEUED) {
-            setActiveStep((prevActiveStep) => 0);
+            setActiveStep(0);
           } else if (
             response.data[0].task_status === settings.TASK_STATUS_EXECUTING
           ) {
-            setActiveStep((prevActiveStep) => 1);
+            setActiveStep(1);
           } else if (
             response.data[0].task_status === settings.TASK_STATUS_FINISHED
           ) {
-            setActiveStep((prevActiveStep) => 2);
+            setActiveStep(2);
           }
         } else {
           setCurrentTask("Empty");
+          setActiveStep(0);
         }
       })
       .catch((e) => {
@@ -158,23 +157,9 @@ export default function MiniDrawer() {
     TaskDataService.getNextTask()
       .then((response) => {
         if (response.data !== "empty") {
-          setNextTask(TASK_CHOICES[response.data[0].task_type]);
-          console.log(response.data);
+          setNextTask(response.data[0]);
         } else {
           setNextTask("Empty");
-        }
-      })
-      .catch((e) => {
-        console.log(e);
-      });
-    AmbientDataDataService.getLatest()
-      .then((response) => {
-        if (response.data !== "empty") {
-          setAmbientHmidity(response.data[0].ambient_humidity);
-          setAmbientTemperature(response.data[0].ambient_temperature);
-          setAmbientLightIntensity(response.data[0].ambient_light_intensity);
-          setDataDateTime(response.data[0].ambient_data_date_time);
-          console.log(response.data);
         }
       })
       .catch((e) => {
@@ -196,10 +181,10 @@ export default function MiniDrawer() {
 
   useEffect(() => {
     getActiveStep();
-  });
+  }, [open]);
 
   return (
-    <ThemeProvider theme={isDark ? darkTheme : lightTheme}>
+    <ThemeProvider theme={isDark ? darkTheme() : lightTheme()}>
       <div className={classes.root}>
         <CssBaseline />
         <AppBar
@@ -220,20 +205,36 @@ export default function MiniDrawer() {
               <MenuIcon />
             </IconButton>
             <Grid container spacing={1} className={classes.toolbar}>
-              <Grid item xs>
-                <Typography className={classes.title} variant="h6" noWrap>
+              <Grid item xs={2}>
+                <Typography className={classes.title} variant="h4" noWrap>
                   Plant Condo
                 </Typography>
               </Grid>
-              <Grid item xs>
-                <Typography className={classes.title} noWrap>
-                  Current Task: {currentTask}
+              <Grid item xs={2}>
+                <Typography
+                  variant="h6"
+                  align="center"
+                  color="textPrimary"
+                  noWrap
+                  component={Link}
+                  to={
+                    currentTask !== "Empty"
+                      ? currentTask.plant
+                        ? "/plantDashboard/" + currentTask.plant
+                        : "/condoDashboard"
+                      : "/condoDashboard"
+                  }
+                >
+                  Current Task:{" "}
+                  {currentTask !== "Empty"
+                    ? TASK_CHOICES[currentTask.task_type]
+                    : currentTask}
                 </Typography>
               </Grid>
-              <Grid item xs>
+              <Grid item xs={4}>
                 <Stepper
                   style={{ backgroundColor: "transparent" }}
-                  className={classes.appBar}
+                  className={(classes.appBar, classes.title)}
                   activeStep={activeStep}
                   connector={<ColorlibConnector />}
                 >
@@ -249,7 +250,29 @@ export default function MiniDrawer() {
                   ))}
                 </Stepper>
               </Grid>
-              <Grid>
+              <Grid item xs={2}>
+                <Typography
+                  className={classes.title}
+                  align="center"
+                  variant="h6"
+                  noWrap
+                  component={Link}
+                  color="textPrimary"
+                  to={
+                    nextTask !== "Empty"
+                      ? nextTask.plant
+                        ? "/plantDashboard/" + nextTask.plant
+                        : "/condoDashboard"
+                      : "/condoDashboard"
+                  }
+                >
+                  Next Task:{" "}
+                  {nextTask !== "Empty"
+                    ? TASK_CHOICES[nextTask.task_type]
+                    : nextTask}
+                </Typography>
+              </Grid>
+              <Grid item xs={1}>
                 <label htmlFor="icon-button-file">
                   <IconButton
                     aria-label="upload picture"
@@ -260,48 +283,8 @@ export default function MiniDrawer() {
                   </IconButton>
                 </label>
               </Grid>
-              <Grid item xs>
-                <Typography className={classes.title} noWrap>
-                  Next Task: {nextTask}
-                </Typography>
-              </Grid>
 
-              {/* <Grid item xs>
-                <List dense>
-                  <ListItem>
-                    <ListItemText
-                      primary={"Ambient Humidity: " + ambientHmidity.toString()}
-                    />
-                  </ListItem>
-                  <ListItem>
-                    <ListItemText
-                      primary={
-                        "Ambient Temperature: " + ambientTemperature.toString()
-                      }
-                    />
-                  </ListItem>
-                  <ListItem>
-                    <ListItemText
-                      primary={
-                        "Ambient Light Intensity: " +
-                        ambientLightIntensity.toString()
-                      }
-                    />
-                  </ListItem>
-                  <ListItem>
-                    <ListItemText
-                      primary={
-                        "Data retrieved on: " +
-                        new Date(dataDateTime).toLocaleTimeString("en-US", {
-                          timeZone: "US/Eastern",
-                        })
-                      }
-                    />
-                  </ListItem>
-                </List>
-              </Grid> */}
-
-              <Grid item xs>
+              <Grid item xs={1}>
                 <FormControlLabel
                   control={<Switch checked={isDark} onChange={setDarkTheme} />}
                   label="Dark Theme"
@@ -310,14 +293,11 @@ export default function MiniDrawer() {
                   checked={isDark}
                   onChange={setDarkTheme}
                   name="Dark Theme"
-                />{" "}
+                />
               </Grid>
             </Grid>
           </Toolbar>
         </AppBar>
-        <Paper>
-          <div className={classes.toolbar} />
-        </Paper>
         <Drawer
           variant="permanent"
           className={clsx(classes.drawer, {
@@ -342,25 +322,41 @@ export default function MiniDrawer() {
           </div>
           <Divider />
           <List>
-            <ListItem button key={"condo_dashboard"}>
+            <ListItem
+              button
+              key={"condoDashboard"}
+              component={Link}
+              to="/condoDashboard"
+            >
               <ListItemIcon>
-                <ComputerIcon />
+                <TimelineIcon />
               </ListItemIcon>
               <ListItemText primary={"Condo Dashboard"} />
             </ListItem>
-            <ListItem button key={"plant_dashboard"}>
+            <ListItem
+              button
+              key={"plant_dashboard"}
+              component={Link}
+              to={
+                currentTask !== "Empty"
+                  ? currentTask.plant
+                    ? "/plantDashboard/" + currentTask.plant
+                    : "/plantDashboard/1"
+                  : "/plantDashboard/1"
+              }
+            >
               <ListItemIcon>
                 <ControlCameraIcon />
               </ListItemIcon>
               <ListItemText primary={"Plant Dashboard"} />
             </ListItem>
-            <ListItem button key={"data_analytics"}>
-              <ListItemIcon>
-                <TimelineIcon />
-              </ListItemIcon>
-              <ListItemText primary={"Data Analytics"} />
-            </ListItem>
-            <ListItem button key={"grid_planning"}>
+
+            <ListItem
+              button
+              key={"grid_planning"}
+              component={Link}
+              to="/gridPlanner"
+            >
               <ListItemIcon>
                 <GridOnIcon />
               </ListItemIcon>
@@ -380,7 +376,12 @@ export default function MiniDrawer() {
               </ListItemIcon>
               <ListItemText primary={"Seed Container"} />
             </ListItem>
-            <ListItem button key={"plant_type"}>
+            <ListItem
+              button
+              key={"plant_type"}
+              component={Link}
+              to="/plantType"
+            >
               <ListItemIcon>
                 <EcoIcon />
               </ListItemIcon>
@@ -389,13 +390,15 @@ export default function MiniDrawer() {
           </List>
         </Drawer>
         <main className={classes.content}>
-          <div className={classes.toolbar}>
-            <Switch>
-              {/* <Route exact path={["/", "/seedContainers"]} component={SeedContainersList} /> */}
-              {/* <Route path="/seedContainers/:id" component={SeedContainer} /> */}
-              <Route exact path="/seedContainers" component={SeedContainer} />
-            </Switch>
-          </div>
+          <div className={classes.toolbar} />
+          <Switch>
+            {/* <Route exact path={["/", "/seedContainers"]} component={SeedContainersList} /> */}
+            <Route path="/condoDashboard" component={CondoDashboard} />
+            <Route path="/plantDashboard/:id" component={PlantDashboard} />
+            <Route exact path="/seedContainers" component={SeedContainer} />
+            <Route exact path="/plantType" component={PlantType} />
+            <Route exact path="/gridPlanner" component={GridPlanner} />
+          </Switch>
         </main>
       </div>
     </ThemeProvider>

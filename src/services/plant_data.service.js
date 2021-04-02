@@ -6,7 +6,11 @@ class PlantDataDataService {
   }
 
   get(id) {
-    return http.get(`/farm/plant_data/${id}`);
+    return http.get(`/farm/plant_data/plant/${id}`);
+  }
+
+  getLatest(id) {
+    return http.get(`/farm/plant_data/plant/${id}/latest`);
   }
 
   create(data) {

@@ -1,6 +1,22 @@
 import React, { useEffect } from "react";
 import SeedContainerDataService from "../services/seed_container.service";
-import { TextField, Button, Grid, ListItem, Paper } from "@material-ui/core";
+import SearchIcon from "@material-ui/icons/Search";
+
+import {
+  TextField,
+  Button,
+  Grid,
+  ListItem,
+  InputBase,
+  IconButton,
+  Paper,
+  Divider,
+  CardContent,
+  CardHeader,
+  Card,
+  InputAdornment,
+  useTheme,
+} from "@material-ui/core";
 import settings from "../settings";
 import { makeStyles } from "@material-ui/core";
 
@@ -18,8 +34,27 @@ const SeedContainer = () => {
   const useStyles = makeStyles((theme) => ({
     root: {
       width: "100%",
-      maxWidth: 360,
-      backgroundColor: theme.palette.background.paper,
+      padding: theme.spacing(4),
+    },
+    form: {
+      width: "100%",
+      maxWidth: 800,
+    },
+    search: {
+      padding: "2px 4px",
+      display: "flex",
+      width: "100%",
+    },
+    input: {
+      marginLeft: theme.spacing(1),
+      flex: 1,
+    },
+    iconButton: {
+      padding: 10,
+    },
+    divider: {
+      height: 28,
+      margin: 4,
     },
   }));
 
@@ -186,158 +221,199 @@ const SeedContainer = () => {
   return (
     <React.Fragment>
       <div>
-        <Grid container>
-          <Grid item xs={12}>
-            <TextField
-              label="Search by title"
-              value={searchTitle}
-              onChange={onChangeSearchTitle}
-            />
-            <Button size="small" variant="outlined" onClick={findByTitle}>
-              Search
-            </Button>
-          </Grid>
+        <Grid container spacing={4} alignItems="flex-start">
           <Grid item xs={6}>
-            <h2>Seed Containers List</h2>
-
-            <div className={classes.root}>
-              {seed_containers &&
-                seed_containers.map((seedContainer, index) => (
-                  <ListItem
-                    selected={index === currentIndex}
-                    onClick={() => setActiveSeedContainer(seedContainer, index)}
-                    divider
-                    button
-                    key={index}
+            <Card className={classes.root}>
+              <Grid container spacing={4} alignItems="center" justify="center">
+                <Grid item xs={6}>
+                  <CardHeader title="Seed Containers List"></CardHeader>
+                </Grid>
+                <Grid item xs={6}>
+                  <Paper component="form" className={classes.search}>
+                    <InputBase
+                      className={classes.input}
+                      placeholder="Search by name"
+                      inputProps={{ "aria-label": "search seed containers" }}
+                      value={searchTitle}
+                      onChange={onChangeSearchTitle}
+                    />
+                    <IconButton
+                      className={classes.iconButton}
+                      aria-label="search"
+                      onClick={findByTitle}
+                    >
+                      <SearchIcon />
+                    </IconButton>
+                  </Paper>
+                </Grid>
+              </Grid>
+              <Divider />
+              <CardContent>
+                <div className={classes.form}>
+                  {seed_containers &&
+                    seed_containers.map((seedContainer, index) => (
+                      <ListItem
+                        selected={index === currentIndex}
+                        onClick={() =>
+                          setActiveSeedContainer(seedContainer, index)
+                        }
+                        divider
+                        button
+                        key={index}
+                      >
+                        {seedContainer.seed_container_name}
+                      </ListItem>
+                    ))}
+                </div>
+              </CardContent>
+              <Divider /> <div style={{ height: "16px" }} />
+              <Grid container justify="flex-end" alignItems="flex-end">
+                <Grid item>
+                  <Button
+                    size="large"
+                    variant="contained"
+                    onClick={() => removeAllSeedContainers()}
                   >
-                    {seedContainer.seed_container_name}
-                  </ListItem>
-                ))}
-            </div>
-
-            <Button
-              size="small"
-              variant="contained"
-              onClick={removeAllSeedContainers}
-            >
-              Remove All
-            </Button>
+                    <strong>Remove All</strong>
+                  </Button>
+                </Grid>
+              </Grid>
+            </Card>
           </Grid>
-
           <Grid item xs={6}>
-            <h4>Seed Container Coordinate</h4>
-            <div className="form-group">
-              <TextField
-                label="Name"
-                className="form-control"
-                name="seed_container_name"
-                value={seed_container.seed_container_name}
-                onChange={handleInputChange}
-                error={nameError}
-                style={{ width: "400px" }}
-                variant="filled"
-                helperText={
-                  radiusError
-                    ? "Name needs to be shorter than 255 characters "
-                    : "Perfect!"
-                }
-                required
-              />
-            </div>
-            <div className="form-group">
-              <TextField
-                type={"number"}
-                className="form-control"
-                label="Degree"
-                name="seed_container_degree"
-                value={seed_container.seed_container_degree}
-                onChange={handleInputChange}
-                error={degreeError}
-                style={{ width: "400px" }}
-                variant="filled"
-                helperText={
-                  degreeError
-                    ? "Degree needs to be between 0.0 and 360.0"
-                    : "Perfect!"
-                }
-                required
-              />
-            </div>
+            <Card className={classes.root}>
+              <CardHeader title="Seed Container Details"></CardHeader>
+              <Divider />
+              <CardContent>
+                <div className="form-group">
+                  <TextField
+                    label="Name"
+                    className="form-control"
+                    name="seed_container_name"
+                    value={seed_container.seed_container_name}
+                    onChange={handleInputChange}
+                    error={nameError}
+                    style={{ width: "100%" }}
+                    variant="filled"
+                    helperText={
+                      nameError
+                        ? "Name needs to be shorter than 255 characters "
+                        : "Perfect!"
+                    }
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <TextField
+                    type={"number"}
+                    className="form-control"
+                    label="Degree (°)"
+                    name="seed_container_degree"
+                    value={seed_container.seed_container_degree}
+                    onChange={handleInputChange}
+                    error={degreeError}
+                    style={{ width: "100%" }}
+                    variant="filled"
+                    helperText={
+                      degreeError
+                        ? "Degree needs to be between 0.0 and 360.0"
+                        : "Perfect!"
+                    }
+                    required
+                  />
+                </div>
 
-            <div className="form-group">
-              <TextField
-                type={"number"}
-                className="form-control"
-                label="Radius"
-                name="seed_container_radius"
-                value={seed_container.seed_container_radius}
-                onChange={handleInputChange}
-                error={radiusError}
-                style={{ width: "400px" }}
-                variant="filled"
-                helperText={
-                  radiusError
-                    ? "Radius needs to be between 0.0 and " +
-                      settings.MAX_RADIUS.toString()
-                    : "Perfect!"
-                }
-                required
-              />
-            </div>
+                <div className="form-group">
+                  <TextField
+                    type={"number"}
+                    className="form-control"
+                    label="Radius (cm)"
+                    name="seed_container_radius"
+                    value={seed_container.seed_container_radius}
+                    onChange={handleInputChange}
+                    error={radiusError}
+                    style={{ width: "100%" }}
+                    variant="filled"
+                    helperText={
+                      radiusError
+                        ? "Radius needs to be between 0.0 and " +
+                          settings.MAX_RADIUS.toString()
+                        : "Perfect!"
+                    }
+                    required
+                  />
+                </div>
 
-            <div className="form-group">
-              <TextField
-                type={"number"}
-                className="form-control"
-                label="Level"
-                name="seed_container_level"
-                value={seed_container.seed_container_level}
-                onChange={handleInputChange}
-                error={levelError}
-                style={{ width: "400px" }}
-                variant="filled"
-                helperText={
-                  levelError
-                    ? "Level needs to be between 0 and " +
-                      settings.MAX_LEVEL.toString()
-                    : "Perfect!"
-                }
-                required
-              />
-            </div>
-
-            <Button
-              type="Create"
-              fullWidth
-              variant="contained"
-              disabled={levelError || radiusError || degreeError}
-              onClick={saveSeedContainer}
-            >
-              Create
-            </Button>
-            <Button
-              type="Update"
-              fullWidth
-              variant="contained"
-              disabled={
-                levelError ||
-                radiusError ||
-                degreeError ||
-                !currentSeedContainer.id
-              }
-              onClick={updateSeedContainer}
-            >
-              Update
-            </Button>
-            <Button
-              type="Delete"
-              fullWidth
-              variant="contained"
-              disabled={!currentSeedContainer.id}
-              onClick={deleteSeedContainer}
-            >
-              Delete
-            </Button>
+                <div className="form-group">
+                  <TextField
+                    type={"number"}
+                    className="form-control"
+                    label="Level"
+                    name="seed_container_level"
+                    value={seed_container.seed_container_level}
+                    onChange={handleInputChange}
+                    error={levelError}
+                    style={{ width: "100%" }}
+                    variant="filled"
+                    helperText={
+                      levelError
+                        ? "Level needs to be between 0 and " +
+                          settings.MAX_LEVEL.toString()
+                        : "Perfect!"
+                    }
+                    required
+                  />
+                </div>
+                <Grid
+                  container
+                  alignItems="center"
+                  justify="center"
+                  spacing={4}
+                >
+                  <Grid item>
+                    <Button
+                      size="large"
+                      type="Create"
+                      variant="contained"
+                      disabled={
+                        levelError || radiusError || nameError || degreeError
+                      }
+                      onClick={saveSeedContainer}
+                    >
+                      <strong>Create</strong>
+                    </Button>
+                  </Grid>
+                  <Grid item>
+                    <Button
+                      size="large"
+                      type="Update"
+                      variant="contained"
+                      disabled={
+                        levelError ||
+                        radiusError ||
+                        degreeError ||
+                        nameError ||
+                        !currentSeedContainer.id
+                      }
+                      onClick={updateSeedContainer}
+                    >
+                      <strong>Update</strong>
+                    </Button>
+                  </Grid>
+                  <Grid item>
+                    <Button
+                      size="large"
+                      type="Delete"
+                      variant="contained"
+                      disabled={!currentSeedContainer.id}
+                      onClick={deleteSeedContainer}
+                    >
+                      <strong>Delete</strong>
+                    </Button>
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </Card>
           </Grid>
         </Grid>
       </div>
