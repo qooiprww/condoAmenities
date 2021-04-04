@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@cycjimmy/jsmpeg-player": "^5.0.1",
     "@material-ui/core": "^4.11.3",
     "@material-ui/icons": "^4.11.2",
     "@testing-library/jest-dom": "^5.11.10",
@@ -13,7 +12,6 @@
     "leaflet": "^1.7.1",
     "material-ui": "^0.20.2",
     "math": "0.0.3",
-    "node-rtsp-stream": "0.0.9",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-leaflet": "^3.1.0",

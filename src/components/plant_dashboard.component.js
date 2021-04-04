@@ -4,7 +4,6 @@ import PlantDataDataService from "../services/plant_data.service";
 import TaskDataService from "../services/task.service";
 import PlantDataService from "../services/plant.service";
 import SearchIcon from "@material-ui/icons/Search";
-import JsmpegPlayer from "../JsmpegPlayer";
 import { useHistory } from "react-router-dom";
 import settings from "../settings";
 
@@ -76,9 +75,11 @@ const PlantDashboard = ({ staticContext, ...props }) => {
     setSearchTitle(searchTitle);
   };
 
-  const refreshList = () => {
+  const refreshList = (id) => {
     retrievePlants();
-    setCurrentIndex(-1);
+    //setCurrentIndex(-1);
+    retrievePlant(id);
+    retrievePlantData(id);
   };
 
   const moveToPlant = () => {
@@ -210,9 +211,8 @@ const PlantDashboard = ({ staticContext, ...props }) => {
 
   useEffect(() => {
     retrieveAmbientData();
-    refreshList();
-    retrievePlant(props.match.params.id);
-    retrievePlantData(props.match.params.id);
+    refreshList(props.match.params.id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.match.params.id]);
 
   return (
@@ -369,9 +369,10 @@ const PlantDashboard = ({ staticContext, ...props }) => {
                   <Grid item>
                     <img
                       src="http://192.168.0.164:8081"
-                      height="100%"
                       width="100%"
+                      alt="Camera is offline"
                     />
+
                     {/* <video controls muted>
                       <source
                         src="http://192.168.0.164:8081"
@@ -386,6 +387,15 @@ const PlantDashboard = ({ staticContext, ...props }) => {
                     /> */}
                   </Grid>
                 </Grid>
+                {/* <Divider /> <div style={{ height: "16px" }} />
+                <Grid container justify="space-between">
+                  <Grid item>
+                    <img
+                      src="http://admin:admin@192.168.0.165:8081"
+                      width="100%"
+                    />
+                  </Grid>
+                </Grid> */}
               </CardContent>
             </Card>
           </Grid>

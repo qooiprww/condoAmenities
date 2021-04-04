@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect } from "react";
 import PlantTypeDataService from "../services/plant_type.service";
 import SearchIcon from "@material-ui/icons/Search";
 import math from "math";
@@ -16,6 +16,7 @@ import L, { CRS } from "leaflet";
 //import Marker from "react-leaflet-enhanced-marker";
 import CheckIcon from "@material-ui/icons/Check";
 import PlantDataService from "../services/plant.service";
+import TaskDataService from "../services/task.service";
 
 import {
   Grid,
@@ -53,7 +54,6 @@ const GridPlanner = () => {
   const [plants, setPlants] = React.useState([]);
   const [newPlants, setNewPlants] = React.useState([]);
   const itemsRef = React.useRef([]);
-  const patchRef = React.useRef(null);
 
   const radius = 400;
   useEffect(() => {
@@ -77,16 +77,6 @@ const GridPlanner = () => {
     console.log(data);
     setNewPlants((arr) => [...arr, data]);
   };
-
-  const patchHandlers = useMemo(
-    () => ({
-      load() {
-        const patch = itemsRef.current;
-        patch.bringToFront();
-      },
-    }),
-    []
-  );
 
   const eventHandlers = (index) => ({
     drag() {
@@ -182,6 +172,15 @@ const GridPlanner = () => {
       PlantDataService.create(data)
         .then((response) => {
           retrievePlantTypesAndPlants();
+          var data = {
+            task_type: settings.TASK_SEEDING,
+            plant: response.data.id,
+          };
+          TaskDataService.create(data)
+            .then((response) => {})
+            .catch((e) => {
+              console.log(e);
+            });
         })
         .catch((e) => {
           console.log(e);
@@ -492,6 +491,22 @@ const GridPlanner = () => {
                       </ListItem>
                     ))}
                 </div>
+              </CardContent>
+            </Card>
+            <div style={{ height: "16px" }} />
+            <Card className={classes.root}>
+              <CardHeader title="Live Stream" />
+              <Divider />
+              <CardContent>
+                <Grid container justify="space-between">
+                  <Grid item>
+                    <img
+                      src="http://192.168.0.164:8081"
+                      width="100%"
+                      alt="Camera is offline"
+                    />
+                  </Grid>
+                </Grid>
               </CardContent>
             </Card>
           </Grid>

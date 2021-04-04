@@ -14,8 +14,6 @@ import {
   CardContent,
   CardHeader,
   Card,
-  InputAdornment,
-  useTheme,
 } from "@material-ui/core";
 import settings from "../settings";
 import { makeStyles } from "@material-ui/core";
@@ -68,8 +66,6 @@ const SeedContainer = () => {
   const [seed_container, setSeedContainer] = React.useState(
     initialSeedContainerState
   );
-
-  const [submitted, setSubmitted] = React.useState(false);
 
   const degreeError =
     seed_container.seed_container_degree >= 360.0 ||
@@ -160,7 +156,6 @@ const SeedContainer = () => {
           seed_container_radius: response.data.seed_container_radius,
           seed_container_level: response.data.seed_container_level,
         });
-        setSubmitted(true);
         console.log(response.data);
         refreshList();
       })
@@ -186,7 +181,6 @@ const SeedContainer = () => {
           seed_container_radius: response.data.seed_container_radius,
           seed_container_level: response.data.seed_container_level,
         });
-        setSubmitted(true);
         console.log(response.data);
         refreshList();
       })
